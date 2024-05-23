@@ -2,11 +2,13 @@
 import Header from "@/app/components/Header";
 import React, { useState } from 'react';
 import Tooltip from '@mui/material/Tooltip';
-
+import { FaFilter } from "react-icons/fa";
 
 export default function Home() {
   const [hoverText, setHoverText] = useState('');
   const [tooltipPosition, setTooltipPosition] = useState({ x: 0, y: 0 });
+  const [selectedRegion, setSelectedRegion] = useState('全ての項目'); // デフォルトで全ての項目を選択
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true); // サイドバーの開閉状態
 
   const regions = [
     {
@@ -50,7 +52,6 @@ export default function Home() {
     return 'bg-white';
   };
 
-  // 分数を解析してスタイルと表示テキストを返す関数
   const parseAndStyleCell = (cellData) => {
     const [numerator, denominator] = cellData.split('/').map(Number);
     const remaining = denominator - numerator;
@@ -67,55 +68,75 @@ export default function Home() {
     setHoverText('');
   };
 
+  const handleRegionClick = (regionName) => {
+    setSelectedRegion(regionName);
+  };
+
+  const toggleSidebar = () => {
+    setIsSidebarOpen(!isSidebarOpen);
+  };
+
+  // 全ての項目を表示するためのデータを作成
+  const allCompanies = regions.flatMap(region => region.companies);
+  const selectedRegionData = selectedRegion === '全ての項目'
+    ? regions // 全ての項目が選択された場合、全ての地域を含む配列を返す
+    : [regions.find(region => region.regionName === selectedRegion)];
+
   return (
     <>
       <Header />
-      {/* <div className="tooltip bg-white text-black text-xl rounded-md p-2 shadow-md" style={{ position: 'fixed', left: tooltipPosition.x, top: tooltipPosition.y, zIndex: 1000 }}>
-          {hoverText}
-        </div> */}
+      <div style={{ display: 'flex' }}>
+        <div className={`sidebar ${isSidebarOpen ? 'w-1/6' : 'w-12'} bg-gray-200 p-4 transition-width duration-300 mt-5 rounded-r-lg shadow`}>
+          <button onClick={toggleSidebar} className="mb-4">
+            <FaFilter />
+          </button>
+          {isSidebarOpen && (
+            <ul>
+              <li className={`cursor-pointer p-2 ${selectedRegion === '全ての項目' ? 'bg-gray-400' : 'bg-gray-100'}`}
+                  onClick={() => handleRegionClick('全ての項目')}>
+                全ての項目
+              </li>
+              {regions.map(region => (
+                <li key={region.regionName} className={`cursor-pointer p-2 ${region.regionName === selectedRegion ? 'bg-gray-400' : 'bg-gray-100'}`}
+                    onClick={() => handleRegionClick(region.regionName)}>
+                  {region.regionName}
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
         <div style={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
-        <table className="table-bordered table-auto border-collapse m-6 md:w-2/3 md:text-base text-xs text-center">
-          <tbody>
-            <tr ><td></td><td></td><td>1月1日</td><td>1月2日</td><td>1月3日</td><td>1月4日</td><td>1月5日</td><td>1月6日</td><td>1月7日</td><td>1月8日</td><td>1月9日</td><td>1月10日</td></tr>
-            {regions.map(region => (
-              <>
-                <tr className="region-row">
-                  <td rowSpan={region.companies.length}>{region.regionName}</td>
-                  <td>{region.companies[0].name}</td>
-                  {region.companies[0].data.map((data, index) => {
-                    const { colorClass, text, fraction } = parseAndStyleCell(data);
-                    return (
-                      <Tooltip key={index} title={fraction} arrow>
-                        <td className={`${colorClass} relative`}
-                            onMouseEnter={(event) => handleMouseEnter(fraction, event)}
-                            onMouseLeave={handleMouseLeave}>
-                          {text}
-                        </td>
-                      </Tooltip>
-                    );
-                  })}
-                </tr>
-                {region.companies.slice(1).map(company => (
-                  <tr key={company.name}>
-                    <td>{company.name}</td>
-                    {company.data.map((data, index) => {
-                      const { colorClass, text, fraction } = parseAndStyleCell(data);
-                      return (
-                        <Tooltip key={index} title={fraction} arrow>
-                          <td className={`${colorClass} relative text-center`}
-                              onMouseEnter={(event) => handleMouseEnter(fraction, event)}
-                             onMouseLeave={handleMouseLeave}>
-                            {text}
-                          </td>
-                        </Tooltip>
-                      );
-                    })}
+          <table className="table-bordered table-auto border-collapse m-6 w-full text-center">
+            <tbody>
+              <tr><td></td><td></td><td>1月1日</td><td>1月2日</td><td>1月3日</td><td>1月4日</td><td>1月5日</td><td>1月6日</td><td>1月7日</td><td>1月8日</td><td>1月9日</td><td>1月10日</td></tr>
+              {selectedRegionData.map(region => (
+                <React.Fragment key={region.regionName}>
+                  <tr className="region-row">
+                    <td colSpan={12} className="bg-gray-200 font-bold">{region.regionName}</td>
                   </tr>
-                ))}
-              </>
-            ))}
-          </tbody>
-        </table>
+                  {region.companies.map((company, companyIndex) => (
+                    <tr key={company.name}>
+                      {companyIndex === 0 && <td rowSpan={region.companies.length}>{region.regionName}</td>}
+                      <td>{company.name}</td>
+                      {company.data.map((data, index) => {
+                        const { colorClass, text, fraction } = parseAndStyleCell(data);
+                        return (
+                          <Tooltip key={index} title={fraction} arrow>
+                            <td className={`${colorClass} relative`}
+                                onMouseEnter={(event) => handleMouseEnter(fraction, event)}
+                                onMouseLeave={handleMouseLeave}>
+                              {text}
+                            </td>
+                          </Tooltip>
+                        );
+                      })}
+                    </tr>
+                  ))}
+                </React.Fragment>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
     </>
   );
