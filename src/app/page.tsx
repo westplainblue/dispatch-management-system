@@ -23,6 +23,7 @@ export default function Home() {
   const [tooltipPosition, setTooltipPosition] = useState({ x: 0, y: 0 });
   const [selectedRegion, setSelectedRegion] = useState('全ての項目'); // デフォルトで全ての項目を選択
   const [isSidebarOpen, setIsSidebarOpen] = useState(true); // サイドバーの開閉状態
+  const [isPercentageMode, setIsPercentageMode] = useState(false); // 表示モードの切り替え
 
   const regions = [
     {
@@ -69,8 +70,9 @@ export default function Home() {
   const parseAndStyleCell = (cellData) => {
     const [numerator, denominator] = cellData.split('/').map(Number);
     const remaining = denominator - numerator;
+    const ratio = (numerator / denominator) * 100;
     const colorClass = getColorClass(numerator, denominator);
-    return { colorClass, text: `${remaining}`, fraction: `${numerator}/${denominator}` };
+    return { colorClass, text: isPercentageMode ? `${ratio.toFixed(1)}%` : `${remaining}`, fraction: `${numerator}/${denominator}` };
   };
 
   const handleMouseEnter = (fraction, event) => {
@@ -90,6 +92,10 @@ export default function Home() {
     setIsSidebarOpen(!isSidebarOpen);
   };
 
+  const toggleDisplayMode = () => {
+    setIsPercentageMode(!isPercentageMode);
+  };
+
   // 全ての項目を表示するためのデータを作成
   const allCompanies = regions.flatMap(region => region.companies);
   const selectedRegionData = selectedRegion === '全ての項目'
@@ -105,18 +111,23 @@ export default function Home() {
             <FaFilter />
           </button>
           {isSidebarOpen && (
-            <ul>
-              <li className={`cursor-pointer p-2 ${selectedRegion === '全ての項目' ? 'bg-gray-400' : 'bg-gray-100'}`}
-                  onClick={() => handleRegionClick('全ての項目')}>
-                全ての項目
-              </li>
-              {regions.map(region => (
-                <li key={region.regionName} className={`cursor-pointer p-2 ${region.regionName === selectedRegion ? 'bg-gray-400' : 'bg-gray-100'}`}
-                    onClick={() => handleRegionClick(region.regionName)}>
-                  {region.regionName}
+            <>
+              <button onClick={toggleDisplayMode} className="mb-4 bg-gray-400 p-2 rounded">
+                {isPercentageMode ? '残数表示' : '％表示'}
+              </button>
+              <ul>
+                <li className={`cursor-pointer p-2 ${selectedRegion === '全ての項目' ? 'bg-gray-400' : 'bg-gray-100'}`}
+                    onClick={() => handleRegionClick('全ての項目')}>
+                  全ての項目
                 </li>
-              ))}
-            </ul>
+                {regions.map(region => (
+                  <li key={region.regionName} className={`cursor-pointer p-2 ${region.regionName === selectedRegion ? 'bg-gray-400' : 'bg-gray-100'}`}
+                      onClick={() => handleRegionClick(region.regionName)}>
+                    {region.regionName}
+                  </li>
+                ))}
+              </ul>
+            </>
           )}
         </div>
         <div style={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
