@@ -130,7 +130,7 @@ export default function Home() {
             </>
           )}
         </div>
-        <div style={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', width: '100%', position: 'relative' }}>
           <table className="table-bordered table-auto border-collapse m-6 w-full text-center">
             <tbody>
               <tr><td></td><td></td><td>1月1日</td><td>1月2日</td><td>1月3日</td><td>1月4日</td><td>1月5日</td><td>1月6日</td><td>1月7日</td><td>1月8日</td><td>1月9日</td><td>1月10日</td></tr>
@@ -161,6 +161,12 @@ export default function Home() {
               ))}
             </tbody>
           </table>
+          
+            <div className="self-end p-4 bg-white border rounded shadow" style={{ marginTop: 'auto', marginBottom: '1rem', marginRight: '1rem' }}>
+              <div className="text-rose-600">70%以上が赤色</div>
+              <div className="text-blue-700">40%以下が青色</div>
+            </div>
+          
         </div>
       </div>
     </>
