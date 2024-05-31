@@ -112,7 +112,7 @@ export default function Home() {
           </button>
           {isSidebarOpen && (
             <>
-              <button onClick={toggleDisplayMode} className="mb-4 bg-gray-400 p-2 rounded">
+              <button onClick={toggleDisplayMode} className="mb-4 bg-gray-400 p-2 rounded ml-4">
                 {isPercentageMode ? '残数表示' : '％表示'}
               </button>
               <ul>
